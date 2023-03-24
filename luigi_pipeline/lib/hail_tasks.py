@@ -14,6 +14,7 @@ from luigi.parameter import ParameterVisibility
 
 from hail_scripts.elasticsearch.hail_elasticsearch_client import HailElasticsearchClient
 from lib.global_config import GlobalConfig
+from lib.hail_az_target import HailAzTarget
 import lib.hail_vep_runners as vep_runners
 
 logger = logging.getLogger(__name__)
@@ -25,15 +26,20 @@ class MatrixTableSampleSetError(Exception):
         self.missing_samples = missing_samples
 
 
-def GCSorLocalTarget(filename):
-    target = gcs.GCSTarget if filename.startswith('gs://') else luigi.LocalTarget
+def target_from_path(filename):
+    if filename.startswith('gs://'):
+        target = gcs.GCSTarget 
+    elif filename.startswith('hail-az://'):
+        target = HailAzTarget 
+    else
+        target = luigi.LocalTarget
     return target(filename)
 
 
 class VcfFile(luigi.Task):
     filename = luigi.Parameter()
     def output(self):
-       return GCSorLocalTarget(self.filename)
+       return target_from_path(self.filename)
 
 
 class HailMatrixTableTask(luigi.Task):
@@ -62,13 +68,13 @@ class HailMatrixTableTask(luigi.Task):
         return [VcfFile(filename=s) for s in self.source_paths if '*' not in s]
 
     def output(self):
-        return GCSorLocalTarget(self.dest_path)
+        return target_from_path(self.dest_path)
 
     def complete(self):
         # Complete is called by Luigi to check if the task is done and will skip if it is.
         # By default it checks to see that the output exists, but we want to check for the
         # _SUCCESS file to make sure it was not terminated halfway.
-        return GCSorLocalTarget(os.path.join(self.dest_path, '_SUCCESS')).exists()
+        return target_from_path(os.path.join(self.dest_path, '_SUCCESS')).exists()
 
     def run(self):
         # Overwrite to do custom transformations.

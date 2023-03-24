@@ -7,7 +7,7 @@ import sys
 import luigi
 import hail as hl
 
-from lib.hail_tasks import HailMatrixTableTask, HailElasticSearchTask, GCSorLocalTarget, MatrixTableSampleSetError
+from lib.hail_tasks import HailMatrixTableTask, HailElasticSearchTask, MatrixTableSampleSetError, target_from_path
 from lib.model.seqr_mt_schema import SeqrVariantSchema, SeqrGenotypesSchema, SeqrVariantsAndGenotypesSchema
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,8 @@ CONST_GRCh37 = '37'
 CONST_GRCh38 = '38'
 
 def check_if_path_exists(path, label=""):
-    if (path.startswith("gs://") and not hl.hadoop_exists(path)) or (not path.startswith("gs://") and not os.path.exists(path)):
+    exists = hl.hadoop_exists if path.startswith("gs://") or path.startswith("hail-az://") else os.path.exists
+    if (not exists(path)):
         raise ValueError(f"{label} path not found: {path}")
 
 def contig_check(mt, standard_contigs, threshold):
@@ -257,13 +258,13 @@ class SeqrMTToESTask(HailElasticSearchTask):
 
     def output(self):
         # TODO: Use https://luigi.readthedocs.io/en/stable/api/luigi.contrib.esindex.html.
-        return GCSorLocalTarget(filename=self.completed_marker_path)
+        return target_from_path(filename=self.completed_marker_path)
 
     def complete(self):
         # Complete is called by Luigi to check if the task is done and will skip if it is.
         # By default it checks to see that the output exists, but we want to check for the
         # _EXPORTED_TO_ES file to make sure it was not terminated halfway.
-        return GCSorLocalTarget(filename=self.completed_marker_path).exists()
+        return target_from_path(filename=self.completed_marker_path).exists()
 
     def run(self):
         mt = self.import_mt()
