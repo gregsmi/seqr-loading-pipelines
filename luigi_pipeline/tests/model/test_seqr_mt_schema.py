@@ -3,7 +3,8 @@ import unittest
 import hail as hl
 
 from lib.model.seqr_mt_schema import SeqrVariantSchema
-from tests.data.sample_vep import VEP_DATA, DERIVED_DATA
+from tests.data.sample_vep import DERIVED_DATA, VEP_DATA
+
 
 class TestSeqrModel(unittest.TestCase):
 
@@ -91,7 +92,7 @@ class TestSeqrModel(unittest.TestCase):
             self.assertEqual(row[name], samples)
 
         for i in range(start, end, step):
-            name = 'samples_gq.%i_to_%i' % (i, i+step)
+            name = f'samples_gq.{i}_to_{i + step}'
             if name not in non_empty:
                 self.assertEqual(row[name], set())
 

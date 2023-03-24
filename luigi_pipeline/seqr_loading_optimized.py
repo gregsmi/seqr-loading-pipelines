@@ -1,13 +1,16 @@
 import logging
 import sys
-
-import luigi
-import hail as hl
-
 from collections import defaultdict
 
-from lib.hail_tasks import HailMatrixTableTask, HailElasticSearchTask
-from lib.model.seqr_mt_schema import SeqrVariantSchema, SeqrGenotypesSchema, SeqrVariantsAndGenotypesSchema
+import hail as hl
+import luigi
+
+from lib.hail_tasks import HailElasticSearchTask, HailMatrixTableTask
+from lib.model.seqr_mt_schema import (
+    SeqrGenotypesSchema,
+    SeqrVariantsAndGenotypesSchema,
+    SeqrVariantSchema,
+)
 from seqr_loading import SeqrVCFToMTTask
 
 logger = logging.getLogger(__name__)
@@ -30,6 +33,9 @@ class BaseVCFToGenotypesMTTask(HailMatrixTableTask):
     subset_path = luigi.OptionalParameter(default=None,
                                           description="Path to a tsv file with one column of sample IDs: s.")
 
+    def get_schema_class_kwargs(self):
+        return {}
+
     def requires(self):
         return [self.VariantTask()]
 
@@ -41,7 +47,8 @@ class BaseVCFToGenotypesMTTask(HailMatrixTableTask):
         if self.subset_path:
             mt = self.subset_samples_and_variants(mt, self.subset_path)
 
-        mt = self.GenotypesSchema(mt).annotate_all(overwrite=True).select_annotated_mt()
+        kwargs = self.get_schema_class_kwargs()
+        mt = self.GenotypesSchema(mt, **kwargs).annotate_all(overwrite=True).select_annotated_mt()
 
         mt.describe()
         mt.write(self.output().path, stage_locally=True, overwrite=True)

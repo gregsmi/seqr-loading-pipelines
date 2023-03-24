@@ -1,12 +1,20 @@
 import logging
 import sys
 
-import luigi
 import hail as hl
+import luigi
 
-from lib.model.mito_mt_schema import SeqrMitoVariantsAndGenotypesSchema, SeqrMitoVariantSchema, SeqrMitoGenotypesSchema
-from luigi_pipeline.seqr_loading_optimized import SeqrVCFToVariantMTTask, BaseVCFToGenotypesMTTask, BaseMTToESOptimizedTask
+from lib.model.mito_mt_schema import (
+    SeqrMitoGenotypesSchema,
+    SeqrMitoVariantsAndGenotypesSchema,
+    SeqrMitoVariantSchema,
+)
 from luigi_pipeline.lib.hail_tasks import MatrixTableSampleSetError
+from luigi_pipeline.seqr_loading_optimized import (
+    BaseMTToESOptimizedTask,
+    BaseVCFToGenotypesMTTask,
+    SeqrVCFToVariantMTTask,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -36,13 +44,8 @@ class SeqrMitoVariantMTTask(SeqrVCFToVariantMTTask):
 
 
 class SeqrMitoGenotypesMTTask(BaseVCFToGenotypesMTTask):
-    ignore_missing_samples = luigi.BoolParameter(default=False, description='Allow missing samples in the callset.')
     VariantTask = SeqrMitoVariantMTTask
     GenotypesSchema = SeqrMitoGenotypesSchema
-
-    def subset_samples_and_variants(self, *args):
-        return super().subset_samples_and_variants(*args, ignore_missing_samples=self.ignore_missing_samples)
-
 
 class SeqrMitoMTToESTask(BaseMTToESOptimizedTask):
     VariantTask = SeqrMitoVariantMTTask
