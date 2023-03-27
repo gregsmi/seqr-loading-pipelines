@@ -73,7 +73,7 @@ fi
 source /usr/bin/anaconda/bin/activate py37
 python3 -m pip install luigi
 source /usr/bin/anaconda/bin/deactivate
-mv /vep_data/pyfiles.zip /usr/bin/anaconda/envs/py37/lib/
+echo '/vep_data/pyfiles.zip' > /usr/bin/anaconda/envs/py37/lib/python3.7/site-packages/pyfiles.pth
 
 cat >/vep.c <<EOF
 #include <unistd.h>

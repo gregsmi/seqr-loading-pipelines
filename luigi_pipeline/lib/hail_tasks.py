@@ -32,7 +32,7 @@ def target_from_path(filename):
         target = gcs.GCSTarget 
     elif filename.startswith('hail-az://'):
         target = HailAzTarget 
-    else
+    else:
         target = luigi.LocalTarget
     return target(filename)
 
