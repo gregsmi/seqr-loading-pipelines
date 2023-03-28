@@ -71,7 +71,7 @@ fi
 
 # TODO GRS this is not ideal
 source /usr/bin/anaconda/bin/activate py37
-python3 -m pip install luigi
+python3 -m pip install luigi elasticsearch
 source /usr/bin/anaconda/bin/deactivate
 echo '/vep_data/pyfiles.zip' > /usr/bin/anaconda/envs/py37/lib/python3.7/site-packages/pyfiles.pth
 
