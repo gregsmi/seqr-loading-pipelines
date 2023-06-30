@@ -28,7 +28,7 @@ CONST_GRCh37 = '37'
 CONST_GRCh38 = '38'
 
 def does_file_exist(path):
-    if path.startswith("gs://"):
+    if path.startswith("gs://") or path.startswith("abfss://"):
         return hl.hadoop_exists(path)
     return os.path.exists(path)
 
