@@ -9,7 +9,7 @@ download_and_create_reference_datasets/*.gz
 *.ht
 *.mt
 .data/
-spark-config/core-site.xml
+run-config/core-site.xml
 
 # Standard python gitignore below
 ######################################################################

@@ -62,9 +62,6 @@ RUN SPARK_HOME=/usr/local/lib/python3.9/site-packages/pyspark && \
      > $SPARK_HOME/jars/hadoop-shaded-guava-1.1.1.jar && \
     curl -sSL https://repo1.maven.org/maven2/org/wildfly/openssl/wildfly-openssl/2.2.5.Final/wildfly-openssl-2.2.5.Final.jar \
      > $SPARK_HOME/jars/wildfly-openssl-2.2.5.Final.jar
-# Run container with "-v ./spark-config:/spark-config" and fill in core-sites.xml with necessary 
-# ABFS authentication settings/secrets. Tell Spark to use this mounted directory for configuration.
-ENV SPARK_CONF_DIR=/spark-config
 
 # install htslib
 ENV SAMTOOLS_VERSION="1.9"
