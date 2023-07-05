@@ -9,7 +9,8 @@ download_and_create_reference_datasets/*.gz
 *.ht
 *.mt
 .data/
-run-config/core-site.xml
+# Hadoop config may contain Azure ABFS secrets
+.config/core-site.xml
 
 # Standard python gitignore below
 ######################################################################

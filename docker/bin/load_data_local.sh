@@ -2,9 +2,9 @@
 
 set -x -e
 
-SAMPLE_TYPE=$1
-INDEX_NAME=$2
-SOURCE_FILE=$3
+SOURCE_FILE=$1
+SAMPLE_TYPE=$2
+INDEX_NAME=$3
 
 DEST_FILE="${SOURCE_FILE/.*/}".mt
 
@@ -12,8 +12,7 @@ DEST_FILE="${SOURCE_FILE/.*/}".mt
 python3 -m seqr_loading SeqrVCFToMTTask --local-scheduler \
     --source-paths "${SOURCE_FILE}" \
     --dest-path "${DEST_FILE}" \
-    --sample-type "${SAMPLE_TYPE}" \
-    --vep-runner "DUMMY"
+    --sample-type "${SAMPLE_TYPE}"
 
 # python3 -m seqr_loading SeqrMTToESTask --local-scheduler \
 #     --es-host elasticsearch \

@@ -559,5 +559,5 @@ class HailVEPDummyRunner(HailVEPRunnerBase):
            'variant_class': 'SNV'},)
 
 
-    def run(self, mt, genome_version):
+    def run(self, mt, genome_version, vep_config_json_path=None):
         return mt.annotate_rows(vep=self.MOCK_VEP_DATA)
