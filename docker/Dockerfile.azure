@@ -107,7 +107,11 @@ COPY hail_builds/ ./hail_builds
 COPY hail_scripts/ ./hail_scripts
 COPY luigi_pipeline/ ./luigi_pipeline
 
+# copy config files
 COPY docker/vep_configs/* /vep_configs/
+COPY docker/luigi_configs/* /luigi_configs/
+COPY docker/spark_configs/* /spark_configs/
+ENV SPARK_CONF_DIR=/spark_configs
 
 COPY docker/bashrc /root/.bashrc
 COPY docker/gitconfig /root/.gitconfig
