@@ -48,7 +48,7 @@ class BaseVCFToGenotypesMTTask(HailMatrixTableTask):
         mt = self.GenotypesSchema(mt, **kwargs).annotate_all(overwrite=True).select_annotated_mt()
 
         mt.describe()
-        mt.write(self.output().path, stage_locally=True, overwrite=True)
+        mt.write(self.dest_path, stage_locally=True, overwrite=True)
 
 
 class SeqrVCFToGenotypesMTTask(BaseVCFToGenotypesMTTask):

@@ -9,7 +9,6 @@ from collections import Counter
 
 import hail as hl
 import luigi
-from luigi.contrib import gcs
 from luigi.parameter import ParameterVisibility
 
 from hail_scripts.elasticsearch.hail_elasticsearch_client import HailElasticsearchClient
@@ -26,15 +25,16 @@ class MatrixTableSampleSetError(Exception):
         self.missing_samples = missing_samples
 
 
-def GCSorLocalTarget(filename):
-    target = gcs.GCSTarget if filename.startswith('gs://') else luigi.LocalTarget
-    return target(filename)
+def does_file_exist(path):
+    if path.startswith("gs://") or path.startswith("abfss://"):
+        return hl.hadoop_exists(path)
+    return os.path.exists(path)
 
 
 class VcfFile(luigi.Task):
     filename = luigi.Parameter()
-    def output(self):
-       return GCSorLocalTarget(self.filename)
+    def complete(self):
+       return does_file_exist(self.filename)
 
 
 class HailMatrixTableTask(luigi.Task):
@@ -64,19 +64,16 @@ class HailMatrixTableTask(luigi.Task):
         # We only exclude globs in source path here so luigi does not check if the file exists
         return [VcfFile(filename=s) for s in self.source_paths if '*' not in s]
 
-    def output(self):
-        return GCSorLocalTarget(self.dest_path)
-
     def complete(self):
         # Complete is called by Luigi to check if the task is done and will skip if it is.
         # By default it checks to see that the output exists, but we want to check for the
         # _SUCCESS file to make sure it was not terminated halfway.
-        return GCSorLocalTarget(os.path.join(self.dest_path, '_SUCCESS')).exists()
+        return does_file_exist(os.path.join(self.dest_path, '_SUCCESS'))
 
     def run(self):
         # Overwrite to do custom transformations.
         mt = self.import_vcf()
-        mt.write(self.output().path)
+        mt.write(self.dest_path)
 
     def import_vcf(self):
         # Import the VCFs from inputs. Set min partitions so that local pipeline execution takes advantage of all CPUs.

@@ -8,10 +8,9 @@ import luigi
 import pkg_resources
 
 from luigi_pipeline.lib.hail_tasks import (
-    GCSorLocalTarget,
+    does_file_exist,
     HailElasticSearchTask,
     HailMatrixTableTask,
-    MatrixTableSampleSetError,
 )
 from luigi_pipeline.lib.model.seqr_mt_schema import (
     SeqrGenotypesSchema,
@@ -26,11 +25,6 @@ OPTIONAL_CHROMOSOMES = ['MT', 'chrM', 'Y', 'chrY']
 VARIANT_THRESHOLD = 100
 CONST_GRCh37 = '37'
 CONST_GRCh38 = '38'
-
-def does_file_exist(path):
-    if path.startswith("gs://") or path.startswith("abfss://"):
-        return hl.hadoop_exists(path)
-    return os.path.exists(path)
 
 def check_if_path_exists(path, label=""):
     if not does_file_exist(path):
@@ -134,7 +128,7 @@ class SeqrVCFToMTTask(HailMatrixTableTask):
         mt = self.annotate_globals(mt, kwargs.get("clinvar_data"))
 
         mt.describe()
-        mt.write(self.output().path, stage_locally=True, overwrite=True)
+        mt.write(self.dest_path, stage_locally=True, overwrite=True)
 
     def annotate_old_and_split_multi_hts(self, mt):
         """
@@ -279,15 +273,10 @@ class SeqrMTToESTask(HailElasticSearchTask):
             grch38_to_grch37_ref_chain=self.grch38_to_grch37_ref_chain,
         )]
 
-    def output(self):
-        # TODO: Use https://luigi.readthedocs.io/en/stable/api/luigi.contrib.esindex.html.
-        return GCSorLocalTarget(filename=self.completed_marker_path)
-
     def complete(self):
         # Complete is called by Luigi to check if the task is done and will skip if it is.
-        # By default it checks to see that the output exists, but we want to check for the
-        # _EXPORTED_TO_ES file to make sure it was not terminated halfway.
-        return GCSorLocalTarget(filename=self.completed_marker_path).exists()
+        # TODO: Use https://luigi.readthedocs.io/en/stable/api/luigi.contrib.esindex.html.
+        return does_file_exist(filename=self.completed_marker_path)
 
     def run(self):
         mt = self.import_mt()

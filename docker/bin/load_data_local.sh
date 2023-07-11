@@ -3,10 +3,9 @@
 set -x -e
 
 SOURCE_FILE=$1
-SAMPLE_TYPE=$2
-INDEX_NAME=$3
-
-DEST_FILE="${SOURCE_FILE/.*/}".mt
+DEST_FILE=$2
+SAMPLE_TYPE=$3
+INDEX_NAME=$4
 
 # additional params loaded from Luigi config files
 python3 -m seqr_loading SeqrVCFToMTTask --local-scheduler \
@@ -15,6 +14,7 @@ python3 -m seqr_loading SeqrVCFToMTTask --local-scheduler \
     --sample-type "${SAMPLE_TYPE}"
 
 # python3 -m seqr_loading SeqrMTToESTask --local-scheduler \
+#     --dest-path "${DEST_FILE}" \
 #     --es-host elasticsearch \
 #     --es-index-min-num-shards 1 \
-#     --es-index "${INDEX_NAME}" \
+#     --es-index "${INDEX_NAME}"
