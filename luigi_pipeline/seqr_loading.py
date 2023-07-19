@@ -276,13 +276,14 @@ class SeqrMTToESTask(HailElasticSearchTask):
     def complete(self):
         # Complete is called by Luigi to check if the task is done and will skip if it is.
         # TODO: Use https://luigi.readthedocs.io/en/stable/api/luigi.contrib.esindex.html.
-        return does_file_exist(filename=self.completed_marker_path)
+        return does_file_exist(path=self.completed_marker_path)
 
     def run(self):
-        mt = self.import_mt()
+        mt = hl.read_matrix_table(self.dest_path)
         row_table = SeqrVariantsAndGenotypesSchema.elasticsearch_row(mt)
         es_shards = self._mt_num_shards(mt)
-        self.export_table_to_elasticsearch(row_table, es_shards)
+        # https://www.elastic.co/guide/en/elasticsearch/reference/7.17/removal-of-types.html
+        self.export_table_to_elasticsearch(row_table, es_shards, index_type_name='')
 
         with hl.hadoop_open(self.completed_marker_path, "w") as f:
             f.write(".")

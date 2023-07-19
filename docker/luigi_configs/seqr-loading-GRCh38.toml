@@ -1,0 +1,21 @@
+[SeqrMTToESTask]
+# Passed to SeqrVCFToMTTask.
+reference_ht_path = "abfss://reference@azcpg001sa.dfs.core.windows.net/seqr/v0-1/combined_reference_data_grch38.ht"
+clinvar_ht_path = "abfss://reference@azcpg001sa.dfs.core.windows.net/seqr/v0-1/clinvar.GRCh38.ht"
+grch38_to_grch37_ref_chain = "abfss://reference@azcpg001sa.dfs.core.windows.net/hail/grch38_to_grch37.over.chain.gz"
+vep_config_json_path = "/vep_configs/vep-GRCh38-loftee.json"
+genome_version = "38"
+# ES-specific config.
+es_host = "elasticsearch-master"
+es_username = "elastic"
+es_scheme = "https"
+es_cert_path = "/es-certs/ca.crt"
+
+[SeqrMTToESTask.es_config]
+"es.net.ssl" = "true"
+"es.nodes.wan.only" = "true"
+"es.net.ssl.cert.allow.self.signed" = "true"
+
+[GlobalConfig]
+validation_38_coding_ht = "abfss://reference@azcpg001sa.dfs.core.windows.net/seqr/v0-1/validate_ht/common_coding_variants.grch38.ht"
+validation_38_noncoding_ht = "abfss://reference@azcpg001sa.dfs.core.windows.net/seqr/v0-1/validate_ht/common_noncoding_variants.grch38.ht"

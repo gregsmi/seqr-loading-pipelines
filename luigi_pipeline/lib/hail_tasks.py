@@ -230,6 +230,9 @@ class HailElasticSearchTask(luigi.Task):
     es_index_min_num_shards = luigi.IntParameter(default=1,
                                                  description='Number of shards for the index will be the greater of '
                                                              'this value and a calculated value based on the matrix.')
+    es_scheme = luigi.Parameter(default=None, description='Connection scheme to use for ElasticSearch.')
+    es_config = luigi.DictParameter(default={}, description='Additional ElasticSearch configuration options.')
+    es_cert_path = luigi.Parameter(default=None, description='Path to CA certificate for ElasticSearch.')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -237,7 +240,12 @@ class HailElasticSearchTask(luigi.Task):
             raise Exception(f"Invalid es_index name [{self.es_index}], must be lowercase")
 
         self._es = HailElasticsearchClient(
-            host=self.es_host, port=self.es_port, es_username=self.es_username, es_password=self.es_password)
+            host=self.es_host,
+            port=self.es_port,
+            es_username=self.es_username,
+            es_password=self.es_password,
+            scheme=self.es_scheme,
+            ca_certs=self.es_cert_path)
 
     def requires(self):
         return [VcfFile(filename=self.source_path)]
@@ -247,9 +255,9 @@ class HailElasticSearchTask(luigi.Task):
         # TODO: Load into ES
 
     def import_mt(self):
-        return hl.read_matrix_table(self.input()[0].path)
+        return hl.read_matrix_table(self.input()[0].filename)
 
-    def export_table_to_elasticsearch(self, table, num_shards, disabled_fields=None):
+    def export_table_to_elasticsearch(self, table, num_shards, disabled_fields=None, **kwargs):
         func_to_run_after_index_exists = None if not self.use_temp_loading_nodes else \
             lambda: self._es.route_index_to_temp_es_cluster(self.es_index)
         self._es.export_table_to_elasticsearch(table,
@@ -258,14 +266,15 @@ class HailElasticSearchTask(luigi.Task):
                                                func_to_run_after_index_exists=func_to_run_after_index_exists,
                                                elasticsearch_mapping_id="docId",
                                                num_shards=num_shards,
-                                               write_null_values=True)
+                                               write_null_values=True,
+                                               elasticsearch_config=dict(self.es_config),
+                                               **kwargs)
 
     def cleanup(self, es_shards):
         self._es.route_index_off_temp_es_cluster(self.es_index)
         # Current disk configuration requires the previous index to be deleted prior to large indices, ~1TB, transferring off loading nodes
         if es_shards < 25:
             self._es.wait_for_shard_transfer(self.es_index)
-
 
     def _mt_num_shards(self, mt):
         # The greater of the user specified min shards and calculated based on the variants and samples

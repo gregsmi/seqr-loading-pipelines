@@ -110,6 +110,7 @@ COPY luigi_pipeline/ ./luigi_pipeline
 # copy config files
 COPY docker/vep_configs/* /vep_configs/
 COPY docker/luigi_configs/* /luigi_configs/
+ENV LUIGI_CONFIG_PARSER=toml
 COPY docker/spark_configs/* /spark_configs/
 ENV SPARK_CONF_DIR=/spark_configs
 
