@@ -4,12 +4,12 @@ set -x -e
 
 SOURCE_FILE=$1
 DEST_FILE=$2
-BUILD_VERSION=$3
-SAMPLE_TYPE=$4
-INDEX_NAME=$5
+SAMPLE_TYPE=$3
+INDEX_NAME=$4
+CONFIG_PATH=$5
 
-# Point Luigi to the correct mounted config file for default args.
-export LUIGI_CONFIG_PATH=/luigi_configs/seqr-loading-GRCh${BUILD_VERSION}.toml
+# Point Luigi to the appropriate job config file.
+export LUIGI_CONFIG_PATH=${CONFIG_PATH}
 
 # Additional params loaded from Luigi config file.
 python3 -m seqr_loading SeqrMTToESTask --local-scheduler \
