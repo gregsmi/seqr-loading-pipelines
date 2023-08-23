@@ -50,10 +50,10 @@ RUN python3 -m pip install hail
 
 # Add jars required to support ABFS
 RUN SPARK_HOME=/usr/local/lib/python3.9/site-packages/pyspark && \
-    curl -sSL https://search.maven.org/remotecontent?filepath=org/apache/hadoop/hadoop-azure/3.2.2/hadoop-azure-3.2.2.jar \
-     > $SPARK_HOME/jars/hadoop-azure-3.2.2.jar && \
-    curl -sSL https://search.maven.org/remotecontent?filepath=com/microsoft/azure/azure-storage/7.0.0/azure-storage-7.0.0.jar \
-     > $SPARK_HOME/jars/azure-storage-7.0.0.jar && \
+    curl -sSL https://search.maven.org/remotecontent?filepath=org/apache/hadoop/hadoop-azure/3.2.0/hadoop-azure-3.2.0.jar \
+     > $SPARK_HOME/jars/hadoop-azure-3.2.0.jar && \
+    curl -sSL https://search.maven.org/remotecontent?filepath=com/microsoft/azure/azure-storage/8.1.0/azure-storage-8.1.0.jar \
+     > $SPARK_HOME/jars/azure-storage-8.1.0.jar && \
     curl -sSL https://search.maven.org/remotecontent?filepath=org/eclipse/jetty/jetty-util-ajax/9.4.20.v20190813/jetty-util-ajax-9.4.20.v20190813.jar \
      > $SPARK_HOME/jars/jetty-util-ajax-9.4.20.v20190813.jar && \
     curl -sSL https://search.maven.org/remotecontent?filepath=org/eclipse/jetty/jetty-util/9.4.20.v20190813/jetty-util-9.4.20.v20190813.jar \
