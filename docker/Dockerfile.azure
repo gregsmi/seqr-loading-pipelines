@@ -5,6 +5,7 @@ LABEL maintainer="Microsoft Health Futures"
 # install commmon utilities
 RUN install_packages \
     ca-certificates \
+    ca-certificates-java \
     less \
     nano \
     wget \
