@@ -233,6 +233,7 @@ class HailElasticSearchTask(luigi.Task):
     es_scheme = luigi.Parameter(default=None, description='Connection scheme to use for ElasticSearch.')
     es_config = luigi.DictParameter(default={}, description='Additional ElasticSearch configuration options.')
     es_cert_path = luigi.Parameter(default=None, description='Path to CA certificate for ElasticSearch.')
+    es_timeout = luigi.IntParameter(default=10, description='Timeout for ElasticSearch requests.')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -245,7 +246,8 @@ class HailElasticSearchTask(luigi.Task):
             es_username=self.es_username,
             es_password=self.es_password,
             scheme=self.es_scheme,
-            ca_certs=self.es_cert_path)
+            ca_certs=self.es_cert_path,
+            timeout=self.es_timeout)
 
     def requires(self):
         return [VcfFile(filename=self.source_path)]
